@@ -12,7 +12,8 @@ class AddPeople extends Component {
   state = {
     name: null,
     age: null,
-    MF : null
+    MF : null,
+    key: null
   }
 
   handleChange = (e) => {

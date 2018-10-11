@@ -106,21 +106,38 @@ class App extends Component {
     return MaxId;
   }
 
+  PersonExistsInList = (personToAdd) => {
+
+    var Dup = false;
+    this.state.people.map(person => {
+      if(personToAdd === person) {
+        Dup = true;
+        return;
+      }
+    });
+    return(Dup);
+  }
+
   // Create a method to add a person to the peopleList
   // This will be passed into the AddPeople component which will call it.
-  addPerson = (person) => {
-    console.log(person);
-    person.key = this.getNextPersonKey();
+  addPerson = (personToAdd) => {
+    console.log("addPerson:", personToAdd);
+    if (this.PersonExistsInList(personToAdd)) {
+        console.log("Person:", personToAdd, " already exists.  Will not add them.")
+        return;
+    }
+    var currentPeople = this.state.people;
+    personToAdd.key = this.getNextPersonKey();
     // setState() is the only place we'd like to modify the state.
     // So we make a copy on the people in the current state and add the new person
     // to the list.
-    var peopleCopy = [...this.state.people, person];
+    var peopleCopy = [...currentPeople, personToAdd];
     // Now use the copy of the people list with the new person added
     // to set the state.
     this.setState({
       people: peopleCopy
     });
-    console.log("NextId:", person.key);
+    console.log("NextId:", personToAdd.key);
   }
 
   deletePerson = (key) => {
