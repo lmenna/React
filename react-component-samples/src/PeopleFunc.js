@@ -10,21 +10,34 @@ import './App.css';
 
 const PeopleFunc = (props) => {
 
+    console.log("In PeopleFunc");
     console.log(props);
-    const { people } = props;
-    const peopleList = people.map(person => {
-      return (
-        <div  key={ person.key } className="person">
-          <div>Name: { person.name }</div>
-          <div>Age: { person.age }</div>
-          <div>Sex: { person.sex }</div>
-        </div>
-      )
+    const { people } = props.people;
+    const ageLimit = props.people.ageLimit;
+    const deletePerson = props.deletePerson;
+    console.log(ageLimit);
+
+    const peopleFuncList = people.map(person => {
+      if (person.age > ageLimit) {
+        return (
+          <div  key={ person.key } className="person">
+            <div>Name: { person.name }</div>
+            <div>Age: { person.age }</div>
+            <div>Sex: { person.sex }</div>
+            {/* Surround the deletePerson(key) call in an annonymous function */ }
+            {/* to prevent it from running till the click occurs.  */ }
+            <button onClick={() => {deletePerson(person.key)}}>Delete</button>
+          </div>
+        )
+      }
+      else {
+        return(null);
+      }
     });
 
     return(
-      <div className="people-list">
-        { peopleList }
+      <div className="peoplefunc-list">
+        { peopleFuncList }
       </div>
     )
 }

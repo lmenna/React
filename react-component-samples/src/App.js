@@ -17,6 +17,7 @@ import './App.css';
 import Person from './Person';
 import People from './People';
 import PeopleFunc from './PeopleFunc';
+import AddPeople from './AddPeople';
 
 class App extends Component {
 
@@ -30,10 +31,12 @@ class App extends Component {
     age: 30,
     allPrices: 'Not loaded yet.  Please wait.',
     people : [
-      { key: 1, name: 'Person1', age: "1", sex: "F" },
-      { key: 2, name: 'Person2', age: "2", sex: "F" },
-      { key: 3, name: 'Person3', age: "3", sex: "M" }
-    ]
+      { key: 1, name: 'Person1', age: 1, sex: "F" },
+      { key: 2, name: 'Person2', age: 2, sex: "F" },
+      { key: 3, name: 'Person3', age: 3, sex: "M" },
+      { key: 4, name: 'Person Over21', age: 30, sex: "M" }
+    ],
+    ageLimit: 21
   }
 
   // Show how a button click can be used to modify the application state.
@@ -92,6 +95,46 @@ class App extends Component {
     }
   }
 
+  getNextPersonKey = () => {
+    var allPeople = this.state.people;
+    var MaxId = 0;
+    allPeople.map(person => {
+      if (person.key > MaxId)
+        MaxId = person.key;
+    })
+    MaxId++;
+    return MaxId;
+  }
+
+  // Create a method to add a person to the peopleList
+  // This will be passed into the AddPeople component which will call it.
+  addPerson = (person) => {
+    console.log(person);
+    person.key = this.getNextPersonKey();
+    // setState() is the only place we'd like to modify the state.
+    // So we make a copy on the people in the current state and add the new person
+    // to the list.
+    var peopleCopy = [...this.state.people, person];
+    // Now use the copy of the people list with the new person added
+    // to set the state.
+    this.setState({
+      people: peopleCopy
+    });
+    console.log("NextId:", person.key);
+  }
+
+  deletePerson = (key) => {
+    console.log("Delete person #", key);
+    // Use filter to find and remove the correct person.
+    // filter doesn't alter the original array.  It returns a new array
+    // with the element removed.
+    var people = this.state.people.filter( person => {
+      return(person.key !== key)
+    });
+    this.setState({
+      people: people
+    });
+  }
 
   // Boiler plate render function created when
   render() {
@@ -112,16 +155,22 @@ class App extends Component {
         <br />
 
         {/* Use a subcomponent to store and display people from an array*/}
-        Display people using a Component and render() function
+        // Display people using a Component and render() function
         <People people={this.state.people}/>
         <br />
 
         {/* Use a stateless function to display the people*/}
-        Display people using stateless component / function
-        <PeopleFunc people={this.state.people}/>
+        // Display people using stateless component / function
+        <PeopleFunc deletePerson={this.deletePerson} people={this.state}/>
         <br />
 
+        // Display the form contained in the AddPeople component
+        <br />
+        Add a person to the list.
+        <AddPeople addPerson={this.addPerson}/>
 
+        <br />
+        // Test form displayed directly in the app
         <button onClick={this.handleClick}>Click Me</button>
         <button onMouseOver={this.handleMouseOver}>Hover Me</button>
         <p onCopy={this.handleCopy}>What we think, we become</p>
