@@ -73,7 +73,7 @@ class App extends Component {
       console.log('form submitted', this.state.name);
   }
 
-  // Using the componentDidMount() react method to asynchronously load
+  // React lifecycle event componentDidMount() will be used to asynchronously load
   // crypto market data from poloniex using their https JSON service
   // Note the strange method used to store the "var that=this" to store the this pointer for later use
   componentDidMount() {
@@ -84,7 +84,7 @@ class App extends Component {
     let name = "nope";
     Http.open("GET", url);
     Http.send();
-    console.log("Http.send(", url, ")");
+    console.log("Loading data from : Http.send(", url, ")");
     var that = this;
     Http.onreadystatechange = function() {
       if (this.readyState===4 && this.status===200) {
@@ -93,6 +93,13 @@ class App extends Component {
         that.setState( {allPrices : exchangeData });
       }
     }
+    console.log("END: componentDidMount()");
+  }
+
+  // React Lifecycle method called whenever a data change resulted in a UI update
+  componentDidUpdate(previousProps, previousState) {
+    console.log("BEGIN: componentDidUpdate()");
+    console.log("END: componentDidUpdate()");
   }
 
   getNextPersonKey = () => {
