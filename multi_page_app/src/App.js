@@ -4,6 +4,7 @@ import Home from './components/home';
 import Contact from './components/contact';
 import About from './components/about';
 import { BrowserRouter, Route } from 'react-router-dom';
+import TickerDetails from './components/TickerDetails'
 
 class App extends Component {
   render() {
@@ -14,6 +15,7 @@ class App extends Component {
         <Route exact path='/' component={Home} />
         <Route path='/contact' component={Contact} />
         <Route path='/about' component={About} />
+        <Route path="/:ticker" component={TickerDetails} />
       </div>
       </BrowserRouter>
     );
