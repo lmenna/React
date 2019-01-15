@@ -79,7 +79,7 @@ class App extends Component {
   componentDidMount() {
     console.log("BEGIN: componentDidMount()");
     const Http = new XMLHttpRequest();
-    const url = "https://poloniex.com/public?command=returnTicker";
+    const url = "https://poloniex.com/public?command=returnTickerrr";
     var exchangeData = "start";
     let name = "nope";
     Http.open("GET", url);
@@ -91,6 +91,9 @@ class App extends Component {
         exchangeData = Http.responseText;
         console.log(exchangeData.substring(0,250));
         that.setState( {allPrices : exchangeData });
+      }
+      else {
+        exchangeData = "Error loading data:" + this.status;
       }
     }
     console.log("END: componentDidMount()");

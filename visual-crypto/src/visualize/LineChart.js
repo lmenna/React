@@ -42,6 +42,7 @@ class LineChart extends Component {
     lineGenerator.x(d => xScale(d.date));
     lineGenerator.y(d => yScale(d.low));
     const lows = lineGenerator(data);
+    console.log("lows:", lows);
     // and then highs
     lineGenerator.y(d => yScale(d.high));
     const highs = lineGenerator(data);
