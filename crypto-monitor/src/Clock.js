@@ -8,7 +8,10 @@ class Clock extends React.Component {
       time: new Date().toLocaleTimeString(),
       otherData: [1,2,3,4],
       cryptoData: "",
-      isLoading: true
+      isLoading: true,
+      numUrgentTrades: 0,
+      numGaining: 0,
+      numLosingTrades: 0
     };
   }
   
@@ -36,6 +39,10 @@ class Clock extends React.Component {
       let bigGains = [];
       let smallGains = [];
       let losingTrades = [];
+      let numUrgentTrades = 0;
+      let numGaining = 0;
+      let numLosingTrades = 0;
+      const maxLosingDisplayed = 25;
       // Set date to be Jan 1, 1970
       let mostRecentUpdate = new Date();
       mostRecentUpdate.setTime(0);
@@ -45,15 +52,19 @@ class Clock extends React.Component {
         let timeStamp = new Date(responseJSON[k].timeStamp);
         if (timeStamp > mostRecentUpdate)
           mostRecentUpdate = timeStamp;
-        let msg = responseJSON[k].timeStamp + " " +
-          responseJSON[k].tradeInstructions;
-        responseText.push(msg);
-        if(responseJSON[k].urgentTrade)
-          bigGains.push(msg);
-        if(!responseJSON[k].urgentTrade && responseJSON[k].gainLoss==="GAIN")
+        if(responseJSON[k].urgentTrade) {
+          bigGains.push(responseJSON[k].tradeInstructions);
+          numUrgentTrades++;
+        }
+        if(!responseJSON[k].urgentTrade && responseJSON[k].gainLoss==="GAIN") {
           smallGains.push(responseJSON[k].tradeInstructions);
-        if(responseJSON[k].gainLoss==="LOSS")
-          losingTrades.push(responseJSON[k].tradeInstructions);
+          numGaining++;
+        }
+        if(responseJSON[k].gainLoss==="LOSS") {
+          numLosingTrades++;
+          if (numLosingTrades < maxLosingDisplayed)
+            losingTrades.push(responseJSON[k].tradeInstructions);
+        }
       //});
       }
       const timeFormatOptions = { hour12: false };
@@ -64,7 +75,10 @@ class Clock extends React.Component {
         cryptoGains: smallGains,
         cryptoLoss: losingTrades,
         isLoading: false,
-        mostRecentUpdateStr
+        mostRecentUpdateStr,
+        numUrgentTrades,
+        numGaining,
+        numLosingTrades
       });
     }  
   }
@@ -84,10 +98,51 @@ class Clock extends React.Component {
     }
   }
 
+  soundTheAlert() {
+      //if you have another AudioContext class use that one, as some browsers have a limit
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+
+    //All arguments are optional:
+
+    //duration of the tone in milliseconds. Default is 500
+    //frequency of the tone in hertz. default is 440
+    //volume of the tone. Default is 1, off is 0.
+    //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
+    //callback to use on end of tone
+    function beep(duration, frequency, volume, type, callback) {
+        var oscillator = audioCtx.createOscillator();
+        var gainNode = audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (volume){gainNode.gain.value = volume;};
+        if (frequency){oscillator.frequency.value = frequency;}
+        if (type){oscillator.type = type;}
+        if (callback){oscillator.onended = callback;}
+
+        oscillator.start();
+        setTimeout(function(){oscillator.stop()}, (duration ? duration : 500));
+    };  
+
+    beep();
+  }
+
+
   render() {
     let numUrgent = 0;
-    if (this.state.cryptoUrgentTrade)
-      numUrgent = this.state.cryptoUrgentTrade.length;    
+    if (this.state.cryptoUrgentTrade) {
+      numUrgent = this.state.cryptoUrgentTrade.length;
+      // Alert when the size of the urgent list increases.
+      if (numUrgent > this.numUrgentTrades)
+      {
+        this.numUrgentTrades = numUrgent;
+        console.log("this.state.numUrgentAlert:", this.numUrgentTrades);
+        this.soundTheAlert();
+      }
+      if (numUrgent===0)
+        this.numUrgentTrades = 0;
+    }
     let numGaining = 0;
     if (this.state.cryptoGains) 
       numGaining = this.state.cryptoGains.length;
@@ -106,33 +161,39 @@ class Clock extends React.Component {
           Most recent update time is: {this.state.mostRecentUpdateStr}.
           <br/>
           <p>
-            <b>Urgent Trades: {numUrgent}</b><br/>
-            <ul class="arb-list-urgent">
+            <b>Urgent Trades: {this.state.numUrgent}</b><br/>
+            <div className="grid-container">
             {!this.state.isLoading && (
               this.state.cryptoUrgentTrade.map(function(listElement){
-                return <li>{listElement}</li>
+                return <div className="grid-item-urgent">
+                  {listElement.slice(0, listElement.indexOf(" "))}<br/>
+                  {listElement.slice(listElement.indexOf(" ")+1)}
+                </div>
             }))}
-            </ul>
+            </div>
           </p>
           <br/>
           <p>
-            <b>Gaining Trades: {numGaining}</b><br/>
-            <ul class="arb-list">
+            <b>Gaining Trades: {this.state.numGaining}</b><br/>
+            <div className="grid-container">
             {!this.state.isLoading && (
               this.state.cryptoGains.map(function(listElement){
-                return <li>{listElement}</li>
+                return <div className="grid-item-gain">
+                  {listElement.slice(0, listElement.indexOf(" "))}<br/>
+                  {listElement.slice(listElement.indexOf(" ")+1)}
+                </div>
             }))}
-            </ul>
+            </div>
           </p>
           <br/>
           <p>
-            <b>Losing Trades: {numLosing}</b> 
-            <ul class="arb-list">
+            <b>Losing Trades: {this.state.numLosingTrades} (Only a subset are displayed)</b> 
+            <div class="grid-container">
             {!this.state.isLoading && (
               this.state.cryptoLoss.map(function(listElement){
-                return <li>{listElement}</li>
+                return <div className="grid-item-loss">{listElement}</div>
             }))}
-            </ul>
+            </div>
           </p>
         </div>
       );

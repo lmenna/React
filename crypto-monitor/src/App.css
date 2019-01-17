@@ -37,6 +37,51 @@
   list-style: none;
 }
 
+body {
+  font: 100% Georgia, serif;
+/*  color:  #fff;
+  background: #444; */
+  color: black;
+  background:white;
+}
+
+a {
+  background-color: grey;
+  color: whitesmoke;
+  text-decoration: none;
+  padding: 1em 1.5em;
+  border: 1px solid;
+}
+
+.grid-container {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: repeat(auto-fill, 300px);
+  padding: 10px;
+}
+
+.grid-item-urgent {
+  background-color: rgb(147, 59, 173);
+  border: 1px solid;
+  padding: 2px;
+  color: white;
+  text-align: left;
+}
+
+.grid-item-gain {
+  background-color: steelblue;
+  border: 1px solid;
+  padding: 2px;
+  color: white;
+  text-align: left;
+}
+
+.grid-item-loss {
+  background-color: grey;
+  border: 1px solid;
+  padding: 2px;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

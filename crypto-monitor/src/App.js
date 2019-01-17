@@ -12,7 +12,7 @@ class App extends Component {
     USDC_BTClowestAsk: 1,
     name: "Luigi"
   }
-
+  
   render() {
     return (
       <div className="App">
@@ -22,6 +22,7 @@ class App extends Component {
         <a href="https://poloniex.com" target="_blank">Poloniex</a>&nbsp; &nbsp;
         <a href="https://bittrex.com" target="_blank">Bittrex</a>&nbsp; &nbsp;
         <a href="https://hitbtc.com" target="_blank">Hitbtc</a>
+        <br/>
         <br/>
         <br/>
         <Clock></Clock>
