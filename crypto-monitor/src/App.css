@@ -2,11 +2,6 @@
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -23,9 +18,8 @@
 }
 
 .App-intro {
-  font: 16pt Georgia, serif;
+  font: 16pt Verdana, serif;
   font-weight: bold;
-  text-decoration: underline;
 }
 
 .arb-list-urgent {
@@ -38,11 +32,11 @@
 }
 
 body {
-  font: 100% Georgia, serif;
+  font: 100% Verdana, serif;
 /*  color:  #fff;
   background: #444; */
   color: black;
-  background:white;
+  background: lightgrey;
 }
 
 a {
@@ -58,20 +52,47 @@ a {
   grid-gap: 15px;
   grid-template-columns: repeat(auto-fill, 300px);
   padding: 10px;
+  text-align: left;
+}
+
+.grid-inner-header {
+  grid-area: header;
+  padding: 0px;
+  color: whitesmoke;
+  font: 160% Verdana, serif;
+  background-color: steelblue;
+  color: lightgoldenrodyellow;
+}
+
+.grid-inner-container {
+  display: grid;
+  grid-gap: 0px;
+  grid-template-columns: 150px 50px;
+  padding: 5px;
+  background-color: steelblue;
+  font: 105% Verdana, serif;
+}
+
+
+.grid-inner-container-urgent {
+  display: grid;
+  grid-gap: 0px;
+  grid-template-columns: 150px 50px;
+  padding: 5px;
+  background-color:lightgreen;
+  font: 105% Verdana, serif;
+}
+
+.grid-item-inner-urgent-large {
+  background-color:lightgreen;
+  padding: 2px;
+  font: 140% Verdana, serif;
 }
 
 .grid-item-urgent {
   background-color: rgb(147, 59, 173);
   border: 1px solid;
-  padding: 2px;
-  color: white;
-  text-align: left;
-}
-
-.grid-item-gain {
-  background-color: steelblue;
-  border: 1px solid;
-  padding: 2px;
+  padding: 3px;
   color: white;
   text-align: left;
 }
@@ -82,11 +103,8 @@ a {
   padding: 2px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.grid-item-inner {
+  background-color: steelblue;
+  padding: 2px;
 }
+

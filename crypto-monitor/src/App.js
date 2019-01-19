@@ -16,20 +16,14 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-  
         <p className="App-intro">Crypto Arbitrage Monitoring Tool</p>
         <br/>
-        <a href="https://poloniex.com" target="_blank">Poloniex</a>&nbsp; &nbsp;
-        <a href="https://bittrex.com" target="_blank">Bittrex</a>&nbsp; &nbsp;
-        <a href="https://hitbtc.com" target="_blank">Hitbtc</a>
-        <br/>
-        <br/>
-        <br/>
         <Clock></Clock>
-
       </div>
     );
   }
 }
-
+//<a href="https://poloniex.com" target="_blank">Poloniex</a>&nbsp; &nbsp;
+//<a href="https://bittrex.com" target="_blank">Bittrex</a>&nbsp; &nbsp;
+//<a href="https://hitbtc.com" target="_blank">Hitbtc</a>
 export default App;
