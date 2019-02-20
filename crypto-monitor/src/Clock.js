@@ -29,71 +29,94 @@ class Clock extends React.Component {
     clearInterval(this.intervalID);
   }
 
+  /* tick
+   * desc: Called repeatedly using a timer.  In each tick it will call the arbdata JSON service to retireve
+   *       data stored in the MongoDB collection marketdata.arbmon-p.  This contains all of the percentage differences
+   *       for currency prices across several exchanges. 
+   */
   tick() {
     // Do call to get crypto arbitrage data
-    
     const Http = new XMLHttpRequest();
     const url='http://localhost:3000/arbdata';
-    Http.open("GET", url);
-    Http.send();
-    Http.onreadystatechange=(e)=>{
-      let responseJSON = JSON.parse(Http.responseText);
-      let bigGains = [];
-      let smallGains = [];
-      let losingTrades = [];
-      this.urgentTradesData = [];
-      this.gainingTradesData = [];
-      let numUrgentTrades = 0;
-      let numGaining = 0;
-      let numLosingTrades = 0;
-      const maxLosingDisplayed = 25;
-      // Set date to be Jan 1, 1970
-      let mostRecentUpdate = new Date();
-      mostRecentUpdate.setTime(0);
-      responseJSON.sort(function(a, b){return(b.arbPercent - a.arbPercent)});
-      for(let k=0; k<responseJSON.length; k++) {
-        let timeStamp = new Date(responseJSON[k].timeStamp);
-        if (timeStamp > mostRecentUpdate)
-          mostRecentUpdate = timeStamp;
-        if(responseJSON[k].urgentTrade) {
-          let gridData = this.getGridDataFromJSON(responseJSON[k]);
-          this.urgentTradesData.push(gridData);
-          bigGains.push(responseJSON[k].tradeInstructions);
-          numUrgentTrades++;
+    try {
+      Http.open("GET", url);
+      Http.send();
+      Http.onreadystatechange=(e)=>{
+        if(Http.readyState === 4 && Http.status === 200) {
+          this.updateStateFromResponse(Http.responseText);
         }
-        if(!responseJSON[k].urgentTrade && responseJSON[k].gainLoss==="GAIN") {
-          let gridData = this.getGridDataFromJSON(responseJSON[k]);
-          this.gainingTradesData.push(gridData);
-          smallGains.push(responseJSON[k].tradeInstructions);
-          numGaining++;
-        }
-        if(responseJSON[k].gainLoss==="LOSS") {
-          numLosingTrades++;
-          if (numLosingTrades < maxLosingDisplayed)
-            losingTrades.push(responseJSON[k].tradeInstructions);
-        }
-      }
-      let marketDataActive = true;
-      const timeFormatOptions = { hour12: false };
-      let mostRecentUpdateStr = mostRecentUpdate.toLocaleTimeString("en-US", timeFormatOptions);
-      if((new Date() - mostRecentUpdate) > 60*1000) {
-        mostRecentUpdateStr += " - STALE!";
-        marketDataActive = false;
-      }
-      this.setState({
-        time: new Date().toLocaleTimeString("en-US", timeFormatOptions),
-        cryptoUrgentTrade: bigGains,
-        cryptoGains: smallGains,
-        cryptoLoss: losingTrades,
-        isLoading: false,
-        mostRecentUpdateStr,
-        numUrgentTrades,
-        numGaining,
-        numLosingTrades,
-        marketDataActive
-      });
-    }  
+      }  
+    }
+    catch(err) {
+      console.log("Error getting data from service.");
+      console.log(err);
+    }
   }
+
+  /* updateStateFromResponse
+   * desc: Called from the timer function tick whenever there is a valid JSON response from the server.
+   *       repsonseText is the JSON string.  It contains an array of percentage price change objects, one for
+   *       each currency / exchange pair, that need to be displayed on the page.
+   */
+  updateStateFromResponse = responseText => {
+
+    let responseJSON = JSON.parse(responseText);
+    let bigGains = [];
+    let smallGains = [];
+    let losingTrades = [];
+    this.urgentTradesData = [];
+    this.gainingTradesData = [];
+    let numUrgentTrades = 0;
+    let numGaining = 0;
+    let numLosingTrades = 0;
+    const maxLosingDisplayed = 25;
+    // Set date to be Jan 1, 1970
+    let mostRecentUpdate = new Date();
+    mostRecentUpdate.setTime(0);
+    responseJSON.sort(function(a, b){return(b.arbPercent - a.arbPercent)});
+    for(let k=0; k<responseJSON.length; k++) {
+      let timeStamp = new Date(responseJSON[k].timeStamp);
+      if (timeStamp > mostRecentUpdate)
+        mostRecentUpdate = timeStamp;
+      if(responseJSON[k].urgentTrade) {
+        let gridData = this.getGridDataFromJSON(responseJSON[k]);
+        this.urgentTradesData.push(gridData);
+        bigGains.push(responseJSON[k].tradeInstructions);
+        numUrgentTrades++;
+      }
+      if(!responseJSON[k].urgentTrade && responseJSON[k].gainLoss==="GAIN") {
+        let gridData = this.getGridDataFromJSON(responseJSON[k]);
+        this.gainingTradesData.push(gridData);
+        smallGains.push(responseJSON[k].tradeInstructions);
+        numGaining++;
+      }
+      if(responseJSON[k].gainLoss==="LOSS") {
+        numLosingTrades++;
+        if (numLosingTrades < maxLosingDisplayed)
+          losingTrades.push(responseJSON[k].tradeInstructions);
+      }
+    }
+    let marketDataActive = true;
+    const timeFormatOptions = { hour12: false };
+    let mostRecentUpdateStr = mostRecentUpdate.toLocaleTimeString("en-US", timeFormatOptions);
+    if((new Date() - mostRecentUpdate) > 60*1000) {
+      mostRecentUpdateStr += " - STALE!";
+      marketDataActive = false;
+    }
+    this.setState({
+      time: new Date().toLocaleTimeString("en-US", timeFormatOptions),
+      cryptoUrgentTrade: bigGains,
+      cryptoGains: smallGains,
+      cryptoLoss: losingTrades,
+      isLoading: false,
+      mostRecentUpdateStr,
+      numUrgentTrades,
+      numGaining,
+      numLosingTrades,
+      marketDataActive
+    });
+  };
+
 
   getGridDataFromJSON(responseJSON) {
 
@@ -114,7 +137,6 @@ class Clock extends React.Component {
       buyAtPrice = responseJSON.exch2BuyAt;
       sellAtTxt = "Sell at " + responseJSON.exch1Name;
       sellAtPrice = responseJSON.exch1SellAt;
-
     }
     return ({
       buyAtTxt,
@@ -176,24 +198,14 @@ class Clock extends React.Component {
     let numUrgent = 0;
     if (this.state.cryptoUrgentTrade) {
       numUrgent = this.state.cryptoUrgentTrade.length;
-      if(numUrgent===0)
-        this.numUrgentTrades = 0;
       // Alert when the size of the urgent list increases.
       console.log("numUrgent:", numUrgent, " this.numUrgentTrades:", this.numUrgentTrades);
-      if (numUrgent > this.numUrgentTrades)
-      {
-        this.numUrgentTrades = numUrgent;
+      if (numUrgent > this.numUrgentTrades) {
         console.log("this.state.numUrgentAlert:", this.numUrgentTrades);
         this.soundTheAlert();
       }
+      this.numUrgentTrades = numUrgent;
     }
-    let numGaining = 0;
-    if (this.state.cryptoGains) 
-      numGaining = this.state.cryptoGains.length;
-    let numLosing = 0;
-    if (this.state.cryptoLoss) 
-      numLosing = this.state.cryptoLoss.length;
-
     if (this.state.isLoading) {
       return("Loading please wait...");
     }
@@ -204,7 +216,7 @@ class Clock extends React.Component {
           <br/>
           Data update time is:{this.state.mostRecentUpdateStr}.
           <br/>
-          <p>
+          <div>
             <b>Urgent Trades: {this.state.numUrgentTrades}</b><br/>
             <div className="grid-container">
               {!this.state.isLoading && (
@@ -225,9 +237,9 @@ class Clock extends React.Component {
                   </div>
               }))}
             </div>
-          </p>
+          </div>
           <br/>
-          <p>
+          <div>
             <b>Gaining Trades: {this.state.numGaining}</b><br/>
             <div className="grid-container">
               {!this.state.isLoading && (
@@ -244,17 +256,17 @@ class Clock extends React.Component {
                     </div>
               }))}
             </div>
-          </p>
+          </div>
           <br/>
-          <p>
+          <div>
             <b>Losing Trades: {this.state.numLosingTrades} (Only a subset are displayed)</b> 
-            <div class="grid-container">
+            <div className="grid-container">
             {!this.state.isLoading && (
               this.state.cryptoLoss.map(function(listElement){
                 return <div className="grid-item-loss">{listElement}</div>
             }))}
             </div>
-          </p>
+          </div>
         </div>
       );
     }
